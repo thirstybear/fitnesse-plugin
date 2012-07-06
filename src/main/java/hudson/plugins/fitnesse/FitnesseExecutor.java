@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -70,18 +69,18 @@ public class FitnesseExecutor {
 		return new FitnesseBuildAction(
 				builder.getFitnesseStart(),
 				builder.getFitnesseHost(build), 
-				builder.getFitnessePort());
+				builder.getFitnessePort(build));
 	}
 
 	private Proc startFitnesse(AbstractBuild<?,?> build, Launcher launcher, EnvVars envVars, PrintStream logger, StdConsole console) throws IOException {
 		logger.println("Starting new Fitnesse instance...");
-		ProcStarter procStarter = launcher.launch().cmds(getJavaCmd(getWorkingDirectory(build), envVars));
+		ProcStarter procStarter = launcher.launch().cmds(getJavaCmd(getWorkingDirectory(build), envVars, build));
 		procStarter.pwd(new File(getAbsolutePathToFileThatMayBeRelativeToWorkspace(getWorkingDirectory(build), builder.getFitnesseJavaWorkingDirectory())));
     	console.provideStdOutAndStdErrFor(procStarter);
 		return procStarter.start();
     }
 
-	public ArrayList<String> getJavaCmd(FilePath workingDirectory, EnvVars envVars) {
+	public ArrayList<String> getJavaCmd(FilePath workingDirectory, EnvVars envVars, AbstractBuild build) {
 		String java = "java"; 
 		if (envVars.containsKey("JAVA_HOME"))
 			java = new File(new File(envVars.get("JAVA_HOME"), "bin"), java).getAbsolutePath();
@@ -92,9 +91,9 @@ public class FitnesseExecutor {
 		String[] jar_opts = {"-jar", absolutePathToFitnesseJar};
 		
 		File fitNesseRoot = new File(getAbsolutePathToFileThatMayBeRelativeToWorkspace(workingDirectory, builder.getFitnessePathToRoot()));
-		String[] fitnesse_opts = {"-d", fitNesseRoot.getParent(), 
+		String[] fitnesse_opts = {"-d", fitNesseRoot.getParent(),
 				"-r", fitNesseRoot.getName(), 
-				"-p", Integer.toString(builder.getFitnessePort())};
+				"-p", Integer.toString(builder.getFitnessePort(build))};
 		
 		// split additional fitness options and add them to those explicitly configured ones
 		String[] addOps = splitOptions(builder.getAdditionalFitnesseOptions());
@@ -251,7 +250,7 @@ public class FitnesseExecutor {
 	public URL getFitnessePageCmdURL(AbstractBuild<?,?> build) throws Exception {
 		return new URL("http", 
 				builder.getFitnesseHost(build), 
-				builder.getFitnessePort(), 
+				builder.getFitnessePort(build),
 				getFitnessePageCmd());
 	}
 	

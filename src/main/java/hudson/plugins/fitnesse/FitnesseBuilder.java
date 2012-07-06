@@ -1,6 +1,5 @@
 package hudson.plugins.fitnesse;
 
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
@@ -66,6 +65,12 @@ public class FitnesseBuilder extends Builder {
     	}
     	return valueIfKeyNotFound;
     }
+
+    private String getOption(String key, final String valueIfKeyNotFound, AbstractBuild<?, ?> build) {
+        String host = getOption(key, valueIfKeyNotFound);
+        host = Util.replaceMacro(host, build.getBuildVariables());
+        return host;
+    }
     
     /**
      * referenced in config.jelly
@@ -87,12 +92,11 @@ public class FitnesseBuilder extends Builder {
 		  		return _LOCALHOST;
 		  	}
 		} else {
-            String host = getOption(FITNESSE_HOST, "unknown_host");
-            host = Util.replaceMacro(host, build.getBuildVariables());
-            return host;
+            return getOption(FITNESSE_HOST, "unknown_host", build);
         }
     }
-    
+
+
     /**
      * referenced in config.jelly
      */
@@ -119,12 +123,13 @@ public class FitnesseBuilder extends Builder {
 
     /**
      * referenced in config.jelly
+     * @param build
      */
-    public int getFitnessePort() {
+    public int getFitnessePort(AbstractBuild build) {
     	return Integer.parseInt(
 			getOption(FITNESSE_PORT_REMOTE, 
 				getOption(FITNESSE_PORT_LOCAL, 
-					getOption(FITNESSE_PORT, "-1"))));
+					getOption(FITNESSE_PORT, "-1", build), build), build));
     }
 
     /**

@@ -2,6 +2,7 @@ package hudson.plugins.fitnesse;
 
 import hudson.EnvVars;
 import hudson.FilePath;
+import hudson.model.AbstractBuild;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,14 +16,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
+
 public class FitnesseExecutorTest {
 
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private static final String TMP_DIR = System.getProperty("java.io.tmpdir");
 	
 	private FitnesseExecutor executor;
+    private AbstractBuild mockBuild = mock(AbstractBuild.class);
 
-	private FitnesseExecutor getExecutorForBuilder(String[] keys, String[] values) {
+    private FitnesseExecutor getExecutorForBuilder(String[] keys, String[] values) {
 		Map<String, String> options = new HashMap<String, String>();
 		for (int i=0; i < keys.length; ++i) {
 			options.put(keys[i], values[i]);
@@ -38,7 +42,8 @@ public class FitnesseExecutorTest {
 				new String[] {"", getTestResourceFitNesseRoot(), 
 						getTestResourceFitnesseJar(), "9999"});
 		FilePath workingDirectory = new FilePath(new File(TMP_DIR));
-		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, new EnvVars());
+
+		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, new EnvVars(), mockBuild);
 		
 		Assert.assertEquals("java", cmd.get(0));
 		Assert.assertEquals("-jar", cmd.get(1));
@@ -70,7 +75,7 @@ public class FitnesseExecutorTest {
 							getTestResourceFitnesseJar(), "9999"});
 
 		FilePath workingDirectory = new FilePath(new File(TMP_DIR));
-		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, new EnvVars());
+		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, new EnvVars(), mockBuild);
 		
 		Assert.assertEquals("java", cmd.get(0));
 		Assert.assertEquals("-Da=b", cmd.get(1));
@@ -94,7 +99,7 @@ public class FitnesseExecutorTest {
 		EnvVars envVars = new EnvVars();
 		envVars.put("JAVA_HOME", javaHome.getAbsolutePath());
 		FilePath workingDirectory = new FilePath(new File(TMP_DIR));
-		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, envVars);
+		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, envVars, mockBuild);
 		
 		Assert.assertEquals(new File(new File(javaHome, "bin"), "java").getAbsolutePath(), 
 				cmd.get(0));
@@ -116,7 +121,7 @@ public class FitnesseExecutorTest {
 		
 		EnvVars envVars = new EnvVars();
 		FilePath workingDirectory = new FilePath(new File(TMP_DIR));
-		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, envVars);
+		ArrayList<String> cmd = executor.getJavaCmd(workingDirectory, envVars, mockBuild);
 
 		Assert.assertEquals("java", cmd.get(0));
 		Assert.assertEquals("-jar", cmd.get(1));

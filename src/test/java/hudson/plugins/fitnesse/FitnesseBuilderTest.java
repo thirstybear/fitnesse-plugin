@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import hudson.model.AbstractBuild;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,13 +18,19 @@ public class FitnesseBuilderTest {
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, "99");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		assertEquals(99, builder.getFitnessePort());
+
+        Map<String, String> theBuildVariables = new HashMap<String, String>();
+
+        AbstractBuild<?, ?> mockBuild = mock(AbstractBuild.class);
+        when(mockBuild.getBuildVariables()).thenReturn(theBuildVariables);
+
+        assertEquals(99, builder.getFitnessePort(mockBuild));
 
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, null);
-		assertEquals(99, builder.getFitnessePort());
+		assertEquals(99, builder.getFitnessePort(mockBuild));
 
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, "");
-		assertEquals(99, builder.getFitnessePort());
+		assertEquals(99, builder.getFitnessePort(mockBuild));
 	}
 	
 	@Test
@@ -33,23 +38,34 @@ public class FitnesseBuilderTest {
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, "999");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		assertEquals(999, builder.getFitnessePort());
+        Map<String, String> theBuildVariables = new HashMap<String, String>();
+
+        AbstractBuild<?, ?> mockBuild = mock(AbstractBuild.class);
+        when(mockBuild.getBuildVariables()).thenReturn(theBuildVariables);
+
+        assertEquals(999, builder.getFitnessePort(mockBuild));
 		
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, null);
-		assertEquals(999, builder.getFitnessePort());
+		assertEquals(999, builder.getFitnessePort(mockBuild));
 		
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, "");
-		assertEquals(999, builder.getFitnessePort());
+		assertEquals(999, builder.getFitnessePort(mockBuild));
 	}
 
-    @Ignore
     @Test
     public void getPortShouldExpandParametersIfSpecified() {
         HashMap<String, String> options = new HashMap<String, String>();
         options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, "$MYPORT");
         FitnesseBuilder builder = new FitnesseBuilder(options);
         int DEFINEDPORT = 6789;
-        assertEquals(DEFINEDPORT, builder.getFitnessePort());
+
+        Map<String, String> theBuildVariables = new HashMap<String, String>();
+        theBuildVariables.put("MYPORT", String.valueOf(DEFINEDPORT));
+
+        AbstractBuild<?, ?> mockBuild = mock(AbstractBuild.class);
+        when(mockBuild.getBuildVariables()).thenReturn(theBuildVariables);
+
+        assertEquals(DEFINEDPORT, builder.getFitnessePort(mockBuild));
     }
 	
 	@Test
