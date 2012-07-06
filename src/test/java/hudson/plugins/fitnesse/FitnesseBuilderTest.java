@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import hudson.model.AbstractBuild;
+import hudson.util.FormValidation;
 import org.junit.Test;
+
+import javax.servlet.ServletException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -154,4 +157,18 @@ public class FitnesseBuilderTest {
 		assertEquals("",
                 builder.getFitnesseJavaWorkingDirectory());
 	}
+
+    @Test
+    public void portShouldNotBeRejectedWhenUsingParameter() throws IOException, ServletException {
+        FitnesseBuilder.DescriptorImpl descriptor = new FitnesseBuilder.DescriptorImpl();
+        assertEquals(FormValidation.ok(), descriptor.doCheckFitnessePort("$PORT"));
+    }
+
+    @Test
+    public void portShouldRejectedNonNumbers() throws IOException, ServletException {
+        FitnesseBuilder.DescriptorImpl descriptor = new FitnesseBuilder.DescriptorImpl();
+        assertFalse(FormValidation.ok().equals(descriptor.doCheckFitnessePort("PORT")));
+        assertFalse(FormValidation.ok().equals(descriptor.doCheckFitnessePort("-123")));
+        assertFalse(FormValidation.ok().equals(descriptor.doCheckFitnessePort("123ABC123")));
+    }
 }

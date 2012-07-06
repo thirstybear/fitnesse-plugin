@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 
@@ -234,13 +235,9 @@ public class FitnesseBuilder extends Builder {
     	public FormValidation doCheckFitnessePort(@QueryParameter String value) throws IOException, ServletException {
     		if (value.length()==0)
     			return FormValidation.error("Please specify the fitnesse port.");
-    		try {
-    			int intValue = Integer.parseInt(value);
-    			if (intValue < 1)
-    				return FormValidation.error("Port must be a positive integer.");
-    		} catch (NumberFormatException e) {
-    			return FormValidation.error("Port must be a number.");
-    		}
+            if (!Pattern.matches("\\d+|\\$\\w+", value)) {
+                return FormValidation.error("Port must be a number.");
+            }
     		return FormValidation.ok();
     	}
     	
