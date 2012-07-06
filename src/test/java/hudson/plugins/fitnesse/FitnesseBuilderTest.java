@@ -1,10 +1,12 @@
 package hudson.plugins.fitnesse;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class FitnesseBuilderTest {
 	@Test
@@ -12,13 +14,13 @@ public class FitnesseBuilderTest {
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, "99");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals(99, builder.getFitnessePort());
+		assertEquals(99, builder.getFitnessePort());
 
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, null);
-		Assert.assertEquals(99, builder.getFitnessePort());
+		assertEquals(99, builder.getFitnessePort());
 
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, "");
-		Assert.assertEquals(99, builder.getFitnessePort());
+		assertEquals(99, builder.getFitnessePort());
 	}
 	
 	@Test
@@ -26,26 +28,26 @@ public class FitnesseBuilderTest {
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put(FitnesseBuilder.FITNESSE_PORT_REMOTE, "999");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals(999, builder.getFitnessePort());
+		assertEquals(999, builder.getFitnessePort());
 		
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, null);
-		Assert.assertEquals(999, builder.getFitnessePort());
+		assertEquals(999, builder.getFitnessePort());
 		
 		options.put(FitnesseBuilder.FITNESSE_PORT_LOCAL, "");
-		Assert.assertEquals(999, builder.getFitnessePort());
+		assertEquals(999, builder.getFitnessePort());
 	}
 	
 	@Test
-	public void getHostShouldReturnLocalHostIfStartBuildIsTrue() {
+	public void getHostShouldReturnLocalHostIfStartBuildIsTrue() throws IOException, InterruptedException {
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put(FitnesseBuilder.START_FITNESSE, "True");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
 		
-		Assert.assertTrue(builder.getFitnesseStart());
-//		Assert.assertEquals("localhost", builder.getFitnesseHost());
-//		
+		assertTrue(builder.getFitnesseStart());
+//		assertEquals("localhost", builder.getFitnesseHost(null));
+//
 //		options.put(FitnesseBuilder.FITNESSE_HOST, "abracadabra");
-//		Assert.assertEquals("localhost", builder.getFitnesseHost());
+//		assertEquals("localhost", builder.getFitnesseHost(null));
 	}
 	
 	@Test
@@ -55,7 +57,7 @@ public class FitnesseBuilderTest {
 		options.put(FitnesseBuilder.FITNESSE_HOST, "hudson.local");
 		FitnesseBuilder builder = new FitnesseBuilder(options);
 		
-//		Assert.assertFalse(builder.getFitnesseStart());
+		assertFalse(builder.getFitnesseStart());
 //		Assert.assertEquals("hudson.local", builder.getFitnesseHost());
 //		
 //		options.put(FitnesseBuilder.FITNESSE_HOST, "abracadabra");
@@ -66,9 +68,9 @@ public class FitnesseBuilderTest {
 	public void getHttpTimeoutShouldReturn60000UnlessValueIsExplicit() {
 		HashMap<String, String> options = new HashMap<String, String>();
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals(60000, builder.getFitnesseHttpTimeout());
+		assertEquals(60000, builder.getFitnesseHttpTimeout());
 		options.put(FitnesseBuilder.HTTP_TIMEOUT, "1000");
-		Assert.assertEquals(1000, builder.getFitnesseHttpTimeout());
+		assertEquals(1000, builder.getFitnesseHttpTimeout());
 	}
 	
 	@Test
@@ -78,11 +80,11 @@ public class FitnesseBuilderTest {
 		options.put(FitnesseBuilder.PATH_TO_JAR, tmpFile.getAbsolutePath());
 		
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals(tmpFile.getParentFile().getAbsolutePath(), 
-				builder.getFitnesseJavaWorkingDirectory());
+		assertEquals(tmpFile.getParentFile().getAbsolutePath(),
+                builder.getFitnesseJavaWorkingDirectory());
 		
 		options.put(FitnesseBuilder.JAVA_WORKING_DIRECTORY, "/some/explicit/path");
-		Assert.assertEquals("/some/explicit/path", builder.getFitnesseJavaWorkingDirectory());
+		assertEquals("/some/explicit/path", builder.getFitnesseJavaWorkingDirectory());
 	}	
 	
 	@Test
@@ -92,14 +94,14 @@ public class FitnesseBuilderTest {
 		options.put(FitnesseBuilder.PATH_TO_JAR, tmpFile.getPath());
 		
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals("relativePath", builder.getFitnesseJavaWorkingDirectory());
+		assertEquals("relativePath", builder.getFitnesseJavaWorkingDirectory());
 	}
 	
 	@Test
 	public void getJavaWorkingDirShouldBeEmptyIfFitnessseJarUnspecified() throws Exception {
 		HashMap<String, String> options = new HashMap<String, String>();
 		FitnesseBuilder builder = new FitnesseBuilder(options);
-		Assert.assertEquals("", 
-				builder.getFitnesseJavaWorkingDirectory());
+		assertEquals("",
+                builder.getFitnesseJavaWorkingDirectory());
 	}
 }
