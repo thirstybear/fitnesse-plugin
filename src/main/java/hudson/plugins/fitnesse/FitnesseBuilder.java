@@ -1,12 +1,10 @@
 package hudson.plugins.fitnesse;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Descriptor;
-import hudson.model.ModelObject;
+import hudson.Util;
+import hudson.model.*;
 import hudson.slaves.EnvironmentVariablesNodeProperty;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
@@ -88,7 +86,11 @@ public class FitnesseBuilder extends Builder {
 		  	} else {
 		  		return _LOCALHOST;
 		  	}
-		} else return getOption(FITNESSE_HOST, "unknown_host");
+		} else {
+            String host = getOption(FITNESSE_HOST, "unknown_host");
+            host = Util.replaceMacro(host, build.getBuildVariables());
+            return host;
+        }
     }
     
     /**
